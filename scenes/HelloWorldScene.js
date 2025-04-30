@@ -72,6 +72,22 @@ export default class HelloWorldScene extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
+          // Tiempo inicial en segundos
+          this.initialTime = 10;
+
+          // Texto del temporizador
+      this.timerText = this.add.text(620, 16, `Time: ${this.initialTime}`, {
+        fontSize: "32px",
+        fill: "#000",
+      });
+  
+        // Evento del temporizador que cuenta hacia abajo
+        this.timerEvent = this.time.addEvent({
+          delay: 1000, // 1 segundo
+          callback: this.updateTimer,
+          callbackScope: this,
+          loop: true,
+      });
 
   }
 
@@ -90,9 +106,31 @@ export default class HelloWorldScene extends Phaser.Scene {
     }
 
     if (this.totalcollectable.every(num => num >= 2)) {
-      this.scoreText.setText(`Game Over! Score: ${this.totalscore}`);
+      this.gameOver = 1; // Cambia el valor de gameOver a ganar
     }
 
+    if (this.gameOver === 1) {
+      this.collectableevent.paused = true; // Pausar el evento de recolección
+      this.timerEvent.paused = true; // Pausar el temporizador
+      this.player.setVelocityX(0);
+      this.player.setVelocityY(0);
+      this.gameoverText = this.add.text(400, 300, `GAME OVER, YOU WIN`, {
+        fontSize: "32px",
+        fill: "#ff0000",
+      }).setOrigin(0.5, 0.5);
+      this.physics.pause();
+    }
+    if (this.gameOver === 2) {
+      this.collectableevent.paused = true; // Pausar el evento de recolección
+      this.timerEvent.paused = true; // Pausar el temporizador
+      this.player.setVelocityX(0);
+      this.player.setVelocityY(0);
+      this.gameoverText = this.add.text(400, 300, `GAME OVER, YOU LOSE`, {
+        fontSize: "32px",
+        fill: "#ff0000",
+      }).setOrigin(0.5, 0.5);
+      this.physics.pause();
+    }
 }
 
 spawnCollectable() {
@@ -132,6 +170,16 @@ collectablegrabbed(player, collectable) {
   }
   this.scoreText.setText(`Score: ${this.totalscore}`);
 
+}
+
+updateTimer() {
+  if (this.initialTime > 0) {
+      this.initialTime--; // Reducir el tiempo en 1 segundo
+      this.timerText.setText(`Time: ${this.initialTime}`); // Actualizar el texto
+  } else {
+      this.gameOver = 2; // cambia el valor de gameOver a perder
+      this.timerText.setText("Time: 0"); // Asegurarse de mostrar 0
+  }
 }
 
 }
