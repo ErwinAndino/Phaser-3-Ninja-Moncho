@@ -63,7 +63,7 @@ export default class HelloWorldScene extends Phaser.Scene {
     );
 
     this.collectableevent = this.time.addEvent({
-      delay: 1000,
+      delay: 500,
       callback: this.spawnCollectable,
       callbackScope: this,
      
@@ -101,7 +101,7 @@ export default class HelloWorldScene extends Phaser.Scene {
     } else {
       this.player.setVelocityX(0);
     }
-  if (this.cursors.up.isDown && this.player.body.touching.down) {
+  if (this.cursors.up.isDown && this.player.body.blocked.down) {
       this.player.setVelocityY(-330);
     }
 
@@ -126,7 +126,7 @@ export default class HelloWorldScene extends Phaser.Scene {
       this.player.setVelocityY(0);
       this.gameoverText = this.add.text(400, 300, `GAME OVER, YOU WIN`, {
         fontSize: "32px",
-        fill: "#ff0000",
+        fill: "#008000",
       }).setOrigin(0.5, 0.5);
       this.physics.pause();
     }
@@ -145,44 +145,79 @@ export default class HelloWorldScene extends Phaser.Scene {
       this.physics.pause();
     }
 
+    this.collectable.children.iterate((collectable) => {
+      if (!collectable.active) {
+        return; // Si está desactivado, no hacer nada
+      }
+
+      if (collectable.body.blocked.down) {
+        if (collectable.istouchingdown == false) {
+        collectable.touchCount++;
+        collectable.istouchingdown = true; // Cambiar el estado a tocando el suelo
+        console.log(collectable.touchCount);
+        }
+      }
+      else{
+        collectable.istouchingdown = false; // Cambiar el estado a no tocando el suelo
+        }
+      
+      if (collectable.touchCount * 5 >=  collectable.score) {
+        collectable.disableBody(true, true); // Desactivar el collectable después de 3 toques
+      }
+    });
+
 }
 
 spawnCollectable() {
 
 var x = Phaser.Math.Between(1, 3);
   var type = "";
+  var score = 0;
   if (x == 1) {
     type = "triangle";
+    score = 10;
   }
   if (x == 2) {
     type = "square";
+    score = 20;
   } 
   if (x == 3) {
     type = "diamond";
+    score = 30;
   }
 
 var collectable = this.collectable.create(  Phaser.Math.Between(0, 800), 16, type).setScale(1);
-collectable.setBounce(1);
+collectable.setBounce(0.5);
 collectable.setCollideWorldBounds(true);
-collectable.setVelocity(0 , 20);
+collectable.setVelocity(0 , 0);
+
+  // Agregar propiedad personalizada para contar las veces que toca el piso
+  collectable.touchCount = 0;
+
+  // Agregar propiedad personalizada para almacenar el puntaje
+  collectable.score = score; 
+
+  // Agregar propiedad personalizada para determinar si está tocando el suelo
+  collectable.istouchingdown = false; 
+  
 }
 
 collectablegrabbed(player, collectable) {
   collectable.disableBody(true, true);
 
+  this.totalscore += (collectable.score --- (collectable.touchCount * 5));
+
   if (collectable.texture.key == "triangle") {
-    this.totalscore += 10;
     this.totalcollectable[0] += 1;
   }
   if (collectable.texture.key == "square") {
-    this.totalscore += 20;
     this.totalcollectable[1] += 1;
   }
   if (collectable.texture.key == "diamond") {
-    this.totalscore += 30;
     this.totalcollectable[2] += 1;
   }
   this.scoreText.setText(`Score: ${this.totalscore}`);
+  console.log(`el collectable ${collectable.texture.key} sumo ${collectable.score --- (collectable.touchCount * 5)} puntos`);
 
 }
 
