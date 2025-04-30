@@ -105,9 +105,19 @@ export default class HelloWorldScene extends Phaser.Scene {
       this.player.setVelocityY(-330);
     }
 
-    if (this.totalcollectable.every(num => num >= 2)) {
-      this.gameOver = 1; // Cambia el valor de gameOver a ganar
+    // se se consiguen 2 o mas de cada collectable se gana
+
+    if (this.totalcollectable.every(num => num >= 2)) { 
+      this.gameOver = 1; 
     }
+
+    // si se consiguen 100 puntos o mas se gana
+
+    if (this.totalscore >= 100) { 
+      this.gameOver = 1; 
+    }
+
+    // game over 1 = ganar
 
     if (this.gameOver === 1) {
       this.collectableevent.paused = true; // Pausar el evento de recolección
@@ -120,9 +130,12 @@ export default class HelloWorldScene extends Phaser.Scene {
       }).setOrigin(0.5, 0.5);
       this.physics.pause();
     }
+
+    // game over 2 = perder
+
     if (this.gameOver === 2) {
-      this.collectableevent.paused = true; // Pausar el evento de recolección
-      this.timerEvent.paused = true; // Pausar el temporizador
+      this.collectableevent.paused = true; 
+      this.timerEvent.paused = true; 
       this.player.setVelocityX(0);
       this.player.setVelocityY(0);
       this.gameoverText = this.add.text(400, 300, `GAME OVER, YOU LOSE`, {
@@ -131,6 +144,7 @@ export default class HelloWorldScene extends Phaser.Scene {
       }).setOrigin(0.5, 0.5);
       this.physics.pause();
     }
+
 }
 
 spawnCollectable() {
