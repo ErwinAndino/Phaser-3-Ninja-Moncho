@@ -151,11 +151,17 @@ export default class HelloWorldScene extends Phaser.Scene {
       }
 
       if (collectable.body.blocked.down) {
+
         if (collectable.istouchingdown == false) {
         collectable.touchCount++;
         collectable.istouchingdown = true; // Cambiar el estado a tocando el suelo
         console.log(collectable.touchCount);
         }
+       
+        this.time.delayedCall(1000, () => { // garantiza que si el collectable deja de rebotar sea eliminado despues de un tiempo
+          collectable.istouchingdown = false;
+        });
+
       }
       else{
         collectable.istouchingdown = false; // Cambiar el estado a no tocando el suelo
@@ -179,15 +185,15 @@ var x = Phaser.Math.Between(1, 3);
   }
   if (x == 2) {
     type = "square";
-    score = 20;
+    score = 15;
   } 
   if (x == 3) {
     type = "diamond";
-    score = 30;
+    score = 20;
   }
 
 var collectable = this.collectable.create(  Phaser.Math.Between(0, 800), 16, type).setScale(1);
-collectable.setBounce(0.5);
+collectable.setBounce(0.4);
 collectable.setCollideWorldBounds(true);
 collectable.setVelocity(0 , 0);
 
