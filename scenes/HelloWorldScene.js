@@ -7,11 +7,12 @@ export default class HelloWorldScene extends Phaser.Scene {
     super("hello-world");
   }
 
-  init() {
+  init(data) {
     // this is called before the scene is created
     // init variables
     // take data passed from other scenes
     // data object param {}
+    this.topscore = data.topscore || 0;
   }
 
   preload() {
@@ -53,12 +54,22 @@ export default class HelloWorldScene extends Phaser.Scene {
     this.totalscore = 0;
     this.totalcollectable = [0, 0, 0];
 
-    this.gameover = 0;
-    console.log("gameover value:", this.gameover);
-    this.scoreText = this.add.text(16, 16, `Score: ${this.totalscore}`, {
+    const textstyle = {
       fontSize: "32px",
       fill: "#fff",
-    });
+    }
+
+    const textstyle2 = {
+      fontSize: "14px",
+      fill: "#000",
+    }
+    this.totalcollectabletext = this.add.text(16, 60, `Collectables: ${this.totalcollectable}`, textstyle2)
+    this.tutorialtext = this.add.text(570, 550, `To win score 100 points`, textstyle2);
+    this.tutorialtext2 = this.add.text(570, 570, `and collect 2 of each shape`, textstyle2);
+
+    this.gameover = 0;
+    console.log("gameover value:", this.gameover);
+    this.scoreText = this.add.text(16, 16, `Score: ${this.totalscore}`, textstyle);
 
     this.physics.add.collider(this.player, this.platforms);
 
@@ -86,10 +97,7 @@ export default class HelloWorldScene extends Phaser.Scene {
           this.initialTime = 15;
 
           // Texto del temporizador
-      this.timerText = this.add.text(620, 16, `Time: ${this.initialTime}`, {
-        fontSize: "32px",
-        fill: "#000",
-      });
+      this.timerText = this.add.text(620, 16, `Time: ${this.initialTime}`, textstyle);
   
         // Evento del temporizador que cuenta hacia abajo
         this.timerEvent = this.time.addEvent({
@@ -105,40 +113,24 @@ export default class HelloWorldScene extends Phaser.Scene {
     // update game objects
 
     if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-160);
+      this.player.setVelocityX(-200);
     } else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(160);
+      this.player.setVelocityX(200);
     } else {
       this.player.setVelocityX(0);
     }
   if (this.cursors.up.isDown && this.player.body.blocked.down) {
       this.player.setVelocityY(-330);
     }
-
-    // se se consiguen 2 o mas de cada collectable se gana
-
-    if (this.totalcollectable.every(num => num >= 2)) { 
-      this.gameover = 1; 
-    }
-
-    // si se consiguen 100 puntos o mas se gana
-
-    if (this.totalscore >= 100) { 
-      this.gameover = 1; 
-    }
+  if (this.cursors.down.isDown) {
+    this.player.setVelocityY(this.player.body.velocity.y + 10)
+  }
 
     // game over != 0 significa que se ha perdido o ganado
 
     if (this.gameover === 1 || this.gameover === 2) {
 
-      this.collectableevent.paused = true; // Pausar el evento de recolección
-      this.timerEvent.paused = true; // Pausar el temporizador
-      this.player.setVelocityX(0);
-      this.player.setVelocityY(0);
-      this.physics.pause(); // Pausar la física del juego
-
-
-      this.scene.start("game-over", { totalscore: this.totalscore, gameover: this.gameover }); // Cambia a la escena de Game Over y manda el puntaje y el estado
+      this.scene.start("game-over", { totalscore: this.totalscore, gameover: this.gameover, topscore: this.topscore }); // Cambia a la escena de Game Over y manda el puntaje y el estado
     }
 
     this.collectable.children.iterate((collectable) => {
@@ -151,7 +143,6 @@ export default class HelloWorldScene extends Phaser.Scene {
         if (collectable.istouchingdown == false) {
         collectable.touchCount++;
         collectable.istouchingdown = true; // Cambiar el estado a tocando el suelo
-        console.log(collectable.touchCount);
         }
        
         this.time.delayedCall(1000, () => { // garantiza que si el collectable deja de rebotar sea eliminado despues de un tiempo
@@ -177,25 +168,30 @@ spawnCollectable() {
 let x = Phaser.Math.Between(1, 4);
   let type = "";
   let score = 0;
+  let scale = 0;
   if (x == 1) {
     type = "triangle";
     score = 10;
+    scale = 1;
   }
   if (x == 2) {
     type = "square";
     score = 15;
+    scale = 1;
   } 
   if (x == 3) {
     type = "diamond";
     score = 20;
+    scale = 1;
   }
   if (x == 4) {
     type = "bomb";
     score = -20;
+    scale = 0.8;
   }
 
-let collectable = this.collectable.create(  Phaser.Math.Between(0, 800), 16, type).setScale(1);
-collectable.setBounce(0.4);
+let collectable = this.collectable.create(  Phaser.Math.Between(0, 800), 16, type).setScale(scale);
+collectable.setBounce(0.5);
 collectable.setCollideWorldBounds(true);
 collectable.setVelocity(0 , 0);
 
@@ -240,6 +236,7 @@ if (collectable.texture.key == "bomb") {
   }
 }
   this.scoreText.setText(`Score: ${this.totalscore}`);
+  this.totalcollectabletext.setText(`collectables: ${this.totalcollectable}`); // Actualizar el texto
 }
 
 updateTimer() {
@@ -247,8 +244,16 @@ updateTimer() {
       this.initialTime--; // Reducir el tiempo en 1 segundo
       this.timerText.setText(`Time: ${this.initialTime}`); // Actualizar el texto
   } else {
+        // si se consiguen mas de 100 puntos o se consiguen 2 o mas de cada collectable se gana al terminar el tiempo
+    if (this.totalscore >= 100 && this.totalcollectable.every(num => num >= 2)){ 
+
+      this.gameover = 1; 
+
+    }
+      else{
       this.gameover = 2; // cambia el valor de gameover a perder
       this.timerText.setText("Time: 0"); // Asegurarse de mostrar 0
+      }
   }
 }
 

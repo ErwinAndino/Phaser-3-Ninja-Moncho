@@ -12,8 +12,14 @@ export default class GameOver extends Phaser.Scene {
       // data object param {}
       console.log("Datos recibidos en gameover:", data); // Depuración
 
-        this.totalscore = data.totalscore; // Get the final score from the data passed
-        this.gameover = data.gameover; // Get the game over status from the data passed
+        this.totalscore = data.totalscore || 0; // Get the final score from the data passed
+        this.gameover = data.gameover || 0; // Get the game over status from the data passed
+        this.topscore = data.topscore || 0;
+
+        if (this.totalscore > this.topscore) {
+          this.topscore = this.totalscore || 0
+        }
+         
        
     }
     preload() {
@@ -36,7 +42,7 @@ export default class GameOver extends Phaser.Scene {
   
       
         this.input.keyboard.on("keydown-R", () => {
-          this.scene.start("hello-world"); // Restart the game scene
+          this.scene.start("hello-world", {topscore: this.topscore}); // Restart the game scene
         });
         if (this.gameover === 1) {
           this.add.text(400, 200, "You win!", { font: "80px Arial", fill: " #008000" }).setOrigin(0.5, 0.5);;
@@ -46,13 +52,16 @@ export default class GameOver extends Phaser.Scene {
         }
 
         this.add.text(400, 280, `Score: ${this.totalscore}`, style2).setOrigin(0.5, 0.5);
+
+        this.add.text(400, 310, `Top score: ${this.topscore}`, style2).setOrigin(0.5, 0.5);
         
-        this.add.text(400, 320, "Press R to restart", style2).setOrigin(0.5, 0.5);
+        this.add.text(400, 350, "Press R to restart", style2).setOrigin(0.5, 0.5);
+
+  
      }
       update() {
         // update game objects
         // this is called every frame
         // update game logic
-      }
-
+}
 }
