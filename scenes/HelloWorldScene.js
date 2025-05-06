@@ -17,7 +17,6 @@ export default class HelloWorldScene extends Phaser.Scene {
   preload() {
     // load assets
     this.load.image("sky", "./public/assets/Cielo.webp");
-    this.load.image("background", "./public/assets/FondoMenu.jpg");
     this.load.image("ninja", "./public/assets/Ninja.png");
     this.load.image("platform", "./public/assets/platform.png");
     this.load.image("diamond", "./public/assets/diamond.png");
@@ -28,6 +27,7 @@ export default class HelloWorldScene extends Phaser.Scene {
 
   create() {
     // create game objects
+    
     this.add.image(400, 300, "sky").setScale(2);
 
     this.platforms = this.physics.add.staticGroup();
@@ -54,7 +54,7 @@ export default class HelloWorldScene extends Phaser.Scene {
     this.totalcollectable = [0, 0, 0];
 
     this.gameover = 0;
-
+    console.log("gameover value:", this.gameover);
     this.scoreText = this.add.text(16, 16, `Score: ${this.totalscore}`, {
       fontSize: "32px",
       fill: "#fff",
@@ -98,7 +98,7 @@ export default class HelloWorldScene extends Phaser.Scene {
           callbackScope: this,
           loop: true,
       });
-
+      this.keysZ = this.input.keyboard.addKeys("Z");
   }
 
   update() {
@@ -118,41 +118,27 @@ export default class HelloWorldScene extends Phaser.Scene {
     // se se consiguen 2 o mas de cada collectable se gana
 
     if (this.totalcollectable.every(num => num >= 2)) { 
-      this.gameOver = 1; 
+      this.gameover = 1; 
     }
 
     // si se consiguen 100 puntos o mas se gana
 
     if (this.totalscore >= 100) { 
-      this.gameOver = 1; 
+      this.gameover = 1; 
     }
 
-    // game over 1 = ganar
+    // game over != 0 significa que se ha perdido o ganado
 
-    if (this.gameOver === 1) {
+    if (this.gameover === 1 || this.gameover === 2) {
+
       this.collectableevent.paused = true; // Pausar el evento de recolección
       this.timerEvent.paused = true; // Pausar el temporizador
       this.player.setVelocityX(0);
       this.player.setVelocityY(0);
-      this.gameoverText = this.add.text(400, 300, `GAME OVER, YOU WIN`, {
-        fontSize: "32px",
-        fill: "#008000",
-      }).setOrigin(0.5, 0.5);
-      this.physics.pause();
-    }
+      this.physics.pause(); // Pausar la física del juego
 
-    // game over 2 = perder
 
-    if (this.gameOver === 2) {
-      this.collectableevent.paused = true; 
-      this.timerEvent.paused = true; 
-      this.player.setVelocityX(0);
-      this.player.setVelocityY(0);
-      this.gameoverText = this.add.text(400, 300, `GAME OVER, YOU LOSE`, {
-        fontSize: "32px",
-        fill: "#ff0000",
-      }).setOrigin(0.5, 0.5);
-      this.physics.pause();
+      this.scene.start("game-over", { totalscore: this.totalscore, gameover: this.gameover }); // Cambia a la escena de Game Over y manda el puntaje y el estado
     }
 
     this.collectable.children.iterate((collectable) => {
@@ -181,7 +167,9 @@ export default class HelloWorldScene extends Phaser.Scene {
         collectable.disableBody(true, true); // Desactivar el collectable cuando su puntaje sea menor o igual a 0
       }
     });
-
+    if (this.keysZ.Z.isDown) {
+      this.gameover = Phaser.Math.Between(1, 2); // Cambia el valor de gameover a perder o ganar
+    }
 }
 
 spawnCollectable() {
@@ -259,7 +247,7 @@ updateTimer() {
       this.initialTime--; // Reducir el tiempo en 1 segundo
       this.timerText.setText(`Time: ${this.initialTime}`); // Actualizar el texto
   } else {
-      this.gameOver = 2; // cambia el valor de gameOver a perder
+      this.gameover = 2; // cambia el valor de gameover a perder
       this.timerText.setText("Time: 0"); // Asegurarse de mostrar 0
   }
 }
