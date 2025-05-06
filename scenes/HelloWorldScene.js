@@ -31,11 +31,20 @@ export default class HelloWorldScene extends Phaser.Scene {
 
     this.platforms = this.physics.add.staticGroup();
  
-    this.platforms.create(400, 568, "platform").setScale(2).refreshBody();
+    this.platforms.create(400, 568, "platform").setScale(2).refreshBody(); // suelo en la parte inferior
 
-    this.player = this.physics.add.image(400, 100, "ninja").setScale(0.1);
+    // plataformas en la parte superior
 
-    this.player.setBounce(0.2);
+
+    this.platforms.create(100, 350, "platform").setScale(0.5).refreshBody();
+
+    this.platforms.create(300, 450, "platform").setScale(0.3).refreshBody();
+
+    this.platforms.create(500, 250, "platform").setScale(0.3).refreshBody();
+
+    this.player = this.physics.add.image(400, 300, "ninja").setScale(0.1);
+
+    this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(true);
 
   this.collectable = this.physics.add.group();
@@ -73,7 +82,7 @@ export default class HelloWorldScene extends Phaser.Scene {
     this.cursors = this.input.keyboard.createCursorKeys();
 
           // Tiempo inicial en segundos
-          this.initialTime = 10;
+          this.initialTime = 15;
 
           // Texto del temporizador
       this.timerText = this.add.text(620, 16, `Time: ${this.initialTime}`, {
@@ -168,7 +177,7 @@ export default class HelloWorldScene extends Phaser.Scene {
         }
       
       if (collectable.touchCount * 5 >=  collectable.score) {
-        collectable.disableBody(true, true); // Desactivar el collectable después de 3 toques
+        collectable.disableBody(true, true); // Desactivar el collectable cuando su puntaje sea menor o igual a 0
       }
     });
 
