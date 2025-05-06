@@ -23,6 +23,7 @@ export default class HelloWorldScene extends Phaser.Scene {
     this.load.image("diamond", "./public/assets/diamond.png");
     this.load.image("square", "./public/assets/square.png");
     this.load.image("triangle", "./public/assets/triangle.png");
+    this.load.image("bomb", "./public/assets/bomb.png");
   }
 
   create() {
@@ -175,8 +176,8 @@ export default class HelloWorldScene extends Phaser.Scene {
       else{
         collectable.istouchingdown = false; // Cambiar el estado a no tocando el suelo
         }
-      
-      if (collectable.touchCount * 5 >=  collectable.score) {
+
+      if (collectable.touchCount * 5 >=  Math.abs(collectable.score)) {
         collectable.disableBody(true, true); // Desactivar el collectable cuando su puntaje sea menor o igual a 0
       }
     });
@@ -185,9 +186,9 @@ export default class HelloWorldScene extends Phaser.Scene {
 
 spawnCollectable() {
 
-var x = Phaser.Math.Between(1, 3);
-  var type = "";
-  var score = 0;
+let x = Phaser.Math.Between(1, 4);
+  let type = "";
+  let score = 0;
   if (x == 1) {
     type = "triangle";
     score = 10;
@@ -200,8 +201,12 @@ var x = Phaser.Math.Between(1, 3);
     type = "diamond";
     score = 20;
   }
+  if (x == 4) {
+    type = "bomb";
+    score = -20;
+  }
 
-var collectable = this.collectable.create(  Phaser.Math.Between(0, 800), 16, type).setScale(1);
+let collectable = this.collectable.create(  Phaser.Math.Between(0, 800), 16, type).setScale(1);
 collectable.setBounce(0.4);
 collectable.setCollideWorldBounds(true);
 collectable.setVelocity(0 , 0);
@@ -220,7 +225,21 @@ collectable.setVelocity(0 , 0);
 collectablegrabbed(player, collectable) {
   collectable.disableBody(true, true);
 
-  this.totalscore += (collectable.score --- (collectable.touchCount * 5));
+  let scorevalue = Math.abs(collectable.score) - (collectable.touchCount * 5); //calcular el puntaje restando los rebotes
+ 
+if (collectable.texture.key == "bomb") {
+  this.totalscore -= scorevalue; // si es una bomba el valor del collectable se resta al puntaje total
+  this.player.setTint(0xff0000); // Cambia el color del jugador a rojo
+  
+  this.time.delayedCall(300, () => {
+    this.player.clearTint(); // Quitar el tint rojo despues de 1 segundo
+  });
+  if (this.totalscore < 0) {
+    this.totalscore = 0; // Asegurarse de que el puntaje no sea negativo
+  }
+}
+  else {
+  this.totalscore += scorevalue; // si no es una bomba el valor del collectable se suma al puntaje total
 
   if (collectable.texture.key == "triangle") {
     this.totalcollectable[0] += 1;
@@ -231,9 +250,8 @@ collectablegrabbed(player, collectable) {
   if (collectable.texture.key == "diamond") {
     this.totalcollectable[2] += 1;
   }
+}
   this.scoreText.setText(`Score: ${this.totalscore}`);
-  console.log(`el collectable ${collectable.texture.key} sumo ${collectable.score --- (collectable.touchCount * 5)} puntos`);
-
 }
 
 updateTimer() {
