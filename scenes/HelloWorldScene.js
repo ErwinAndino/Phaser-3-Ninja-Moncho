@@ -17,19 +17,20 @@ export default class HelloWorldScene extends Phaser.Scene {
 
   preload() {
     // load assets
-    this.load.image("sky", "./public/assets/Cielo.webp");
+    this.load.image("sky", "./public/assets/FondoMenu.jpg");
     this.load.image("ninja", "./public/assets/Ninja.png");
     this.load.image("platform", "./public/assets/platform.png");
     this.load.image("diamond", "./public/assets/diamond.png");
     this.load.image("square", "./public/assets/square.png");
     this.load.image("triangle", "./public/assets/triangle.png");
     this.load.image("bomb", "./public/assets/bomb.png");
+    this.load.image("particle", "./public/assets/bomb.png");
   }
 
   create() {
     // create game objects
     
-    this.add.image(400, 300, "sky").setScale(2);
+    this.add.image(400, 300, "sky").setScale(0.7);
 
     this.platforms = this.physics.add.staticGroup();
  
@@ -49,6 +50,8 @@ export default class HelloWorldScene extends Phaser.Scene {
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(true);
 
+    this.particles = this.add.particles("particle");
+
   this.collectable = this.physics.add.group();
 
     this.totalscore = 0;
@@ -63,7 +66,15 @@ export default class HelloWorldScene extends Phaser.Scene {
       fontSize: "14px",
       fill: "#000",
     }
-    this.totalcollectabletext = this.add.text(16, 60, `Collectables: ${this.totalcollectable}`, textstyle2)
+    let collectabletext = this.totalcollectable.map((value, index) => { // separa los valores del array con .map y crea una funcion que utiliza su
+      if (index === 0) return `Triangles: ${value}`;                    // posicion como "index" para asignar un texto y su valor como "value" para 
+      if (index === 1) return `Squares: ${value}`;                      // asignar el valor del collectable
+      if (index === 2) return `Diamonds: ${value}`;
+    })
+    .join("  "); // Unir los textos con una coma y un espacio
+    this.totalcollectabletext = this.add.text(16, 60, collectabletext, textstyle2) //muestra el texto de los collectables
+
+
     this.tutorialtext = this.add.text(570, 550, `To win score 100 points`, textstyle2);
     this.tutorialtext2 = this.add.text(570, 570, `and collect 2 of each shape`, textstyle2);
 
@@ -134,6 +145,7 @@ export default class HelloWorldScene extends Phaser.Scene {
     }
 
     this.collectable.children.iterate((collectable) => {
+      
       if (!collectable.active) {
         return; // Si está desactivado, no hacer nada
       }
@@ -142,9 +154,10 @@ export default class HelloWorldScene extends Phaser.Scene {
 
         if (collectable.istouchingdown == false) {
         collectable.touchCount++;
+        console.log("touchCount:", collectable.touchCount); // Depuración
         collectable.istouchingdown = true; // Cambiar el estado a tocando el suelo
         }
-       
+
         this.time.delayedCall(1000, () => { // garantiza que si el collectable deja de rebotar sea eliminado despues de un tiempo
           collectable.istouchingdown = false;
         });
@@ -157,7 +170,9 @@ export default class HelloWorldScene extends Phaser.Scene {
       if (collectable.touchCount * 5 >=  Math.abs(collectable.score)) {
         collectable.disableBody(true, true); // Desactivar el collectable cuando su puntaje sea menor o igual a 0
       }
-    });
+    
+  });
+
     if (this.keysZ.Z.isDown) {
       this.gameover = Phaser.Math.Between(1, 2); // Cambia el valor de gameover a perder o ganar
     }
@@ -169,31 +184,37 @@ let x = Phaser.Math.Between(1, 4);
   let type = "";
   let score = 0;
   let scale = 0;
+  let velocity = 0;
   if (x == 1) {
     type = "triangle";
     score = 10;
-    scale = 1;
+    scale = 0.8;
+    velocity = 0, 0;
   }
   if (x == 2) {
     type = "square";
     score = 15;
-    scale = 1;
+    scale = 0.8;
+    velocity = 0, 0;
   } 
   if (x == 3) {
     type = "diamond";
     score = 20;
-    scale = 1;
+    scale = 0.8;
+    velocity = 0, 0;
   }
   if (x == 4) {
     type = "bomb";
     score = -20;
-    scale = 0.8;
+    scale = 0.5;
+    velocity = 0, 0;
+    
   }
 
 let collectable = this.collectable.create(  Phaser.Math.Between(0, 800), 16, type).setScale(scale);
 collectable.setBounce(0.5);
 collectable.setCollideWorldBounds(true);
-collectable.setVelocity(0 , 0);
+collectable.setVelocity(velocity);
 
   // Agregar propiedad personalizada para contar las veces que toca el piso
   collectable.touchCount = 0;
@@ -203,7 +224,6 @@ collectable.setVelocity(0 , 0);
 
   // Agregar propiedad personalizada para determinar si está tocando el suelo
   collectable.istouchingdown = false; 
-  
 }
 
 collectablegrabbed(player, collectable) {
@@ -236,7 +256,13 @@ if (collectable.texture.key == "bomb") {
   }
 }
   this.scoreText.setText(`Score: ${this.totalscore}`);
-  this.totalcollectabletext.setText(`collectables: ${this.totalcollectable}`); // Actualizar el texto
+  this.totalcollectabletext.setText(this.totalcollectable.map((value, index) => { // actualiza el texto de los collectables
+    if (index === 0) return `Triangles: ${value}`;
+    if (index === 1) return `Squares: ${value}`;
+    if (index === 2) return `Diamonds: ${value}`;
+  })
+.join("  ")
+); 
 }
 
 updateTimer() {

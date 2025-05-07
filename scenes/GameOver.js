@@ -29,7 +29,7 @@ export default class GameOver extends Phaser.Scene {
       
      create() {
         // create game objects
-        this.add.image(400, 270, "background").setScale(0.7);
+        this.add.image(400, 300, "background").setScale(0.7);
       
         const style = { font: "80px Arial", fill: "#fff" };
 
