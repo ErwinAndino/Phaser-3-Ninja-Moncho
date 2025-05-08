@@ -31,7 +31,7 @@ export default class GameOver extends Phaser.Scene {
         // create game objects
         this.add.image(400, 300, "background").setScale(0.7);
       
-        const style = { font: "80px Arial", fill: "#fff" };
+        const style = { font: "80px ArialBold", fill: "#fff" };
 
 
         this.add.text(400, 100, "Game Over", style).setOrigin(0.5, 0.5);
@@ -45,17 +45,19 @@ export default class GameOver extends Phaser.Scene {
           this.scene.start("hello-world", {topscore: this.topscore}); // Restart the game scene
         });
         if (this.gameover === 1) {
-          this.add.text(400, 200, "You win!", { font: "80px Arial", fill: " #008000" }).setOrigin(0.5, 0.5);;
+          this.add.text(400, 220, "Victory", { font: "80px Arial", fill: " #008000" }).setOrigin(0.5, 0.5);
+          this.add.text(400, 280, "you saved the village!", {font: "20px Arial", fill: " #000"}).setOrigin(0.5, 0.5);
         }
         else {
-          this.add.text(400, 200, "You lose!", { font: "80px Arial", fill: " #FF0000" }).setOrigin(0.5, 0.5);;
+          this.add.text(400, 220, "Defeat", { font: "80px Arial", fill: " #FF0000" }).setOrigin(0.5, 0.5);
+          this.add.text(400, 280, "the village was destroyed", {font: "20px Arial", fill: " #000"}).setOrigin(0.5, 0.5);
         }
 
-        this.add.text(400, 280, `Score: ${this.totalscore}`, style2).setOrigin(0.5, 0.5);
+        this.add.text(400, 330, `Score: ${this.totalscore}`, style2).setOrigin(0.5, 0.5);
 
-        this.add.text(400, 310, `Top score: ${this.topscore}`, style2).setOrigin(0.5, 0.5);
+        this.add.text(400, 360, `Top score: ${this.topscore}`, style2).setOrigin(0.5, 0.5);
         
-        this.add.text(400, 350, "Press R to restart", style2).setOrigin(0.5, 0.5);
+        this.add.text(400, 410, "Press R to restart", style2).setOrigin(0.5, 0.5);
 
   
      }
