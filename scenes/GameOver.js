@@ -29,7 +29,7 @@ export default class GameOver extends Phaser.Scene {
       
      create() {
         // create game objects
-        this.add.image(400, 300, "background").setScale(0.7);
+        this.add.image(400, 258, "background").setScale(0.7);
       
         const style = { font: "80px ArialBold", fill: "#fff" };
 
@@ -57,7 +57,7 @@ export default class GameOver extends Phaser.Scene {
 
         this.add.text(400, 360, `Top score: ${this.topscore}`, style2).setOrigin(0.5, 0.5);
         
-        this.add.text(400, 410, "Press R to restart", style2).setOrigin(0.5, 0.5);
+        this.add.text(400, 390, "Press R to restart", style2).setOrigin(0.5, 0.5);
 
   
      }

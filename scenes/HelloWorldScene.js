@@ -30,7 +30,7 @@ export default class HelloWorldScene extends Phaser.Scene {
   create() {
     // create game objects
     
-    this.add.image(400, 300, "sky").setScale(0.7);
+    this.add.image(400, 195, "sky").setScale(0.7);
 
     this.platforms = this.physics.add.staticGroup();
  
@@ -104,13 +104,13 @@ export default class HelloWorldScene extends Phaser.Scene {
 
     this.triangletext = this.add.text(40, 60, this.totalcollectable[0], textstyle3); // texto de triángulos
 
-    this.add.image(70, 69, "square").setScale(0.3); // contador de triángulos
+    this.add.image(80, 67, "square").setScale(0.3); // contador de triángulos
 
-    this.squaretext = this.add.text(90, 60, this.totalcollectable[1], textstyle3); // texto de triángulos
+    this.squaretext = this.add.text(100, 60, this.totalcollectable[1], textstyle3); // texto de triángulos
 
-    this.add.image(120, 67, "diamond").setScale(0.38); // contador de triángulos
+    this.add.image(140, 67, "diamond").setScale(0.38); // contador de triángulos
 
-    this.diamondtext = this.add.text(140, 60, this.totalcollectable[2], textstyle3); // texto de triángulos
+    this.diamondtext = this.add.text(160, 60, this.totalcollectable[2], textstyle3); // texto de triángulos
 
 
 
