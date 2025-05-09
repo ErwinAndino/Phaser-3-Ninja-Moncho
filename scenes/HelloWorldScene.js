@@ -356,8 +356,8 @@ collectablegrabbed(player, collectable) {
   collectable.disableBody(true, true);
 
    // Emitir 10 partículas en la posición del collectable
-   if (collectable.type !== "bomb") {
-   collectable.emitter1.setBlendMode("ADD"); 
+   if (collectable.type !== "bomb" && collectable.emitter1 !== undefined) {
+   collectable.emitter1.setBlendMode("ADD") || console.log(`fallo en aplicarse el blendmode`); 
    collectable.emitter1.explode(10, collectable.x, collectable.y);
    }
 
